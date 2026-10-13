@@ -1,0 +1,274 @@
+
+BƯỚC 1: NẠP VÀ KIỂM TRA DỮ LIỆU
+Kích thước dữ liệu: 1470 bản ghi, 6 cột
+Các cột: ['Age', 'MonthlyIncome', 'OverTime', 'JobSatisfaction', 'YearsAtCompany', 'Attrition']
+
+Số giá trị thiếu (NaN) toàn bộ: 0
+
+Thống kê mô tả các biến số:
+           Age  MonthlyIncome  YearsAtCompany  JobSatisfaction
+count  1470.00        1470.00         1470.00          1470.00
+mean     36.92        6502.93            7.01             2.73
+std       9.14        4707.96            6.13             1.10
+min      18.00        1009.00            0.00             1.00
+25%      30.00        2911.00            3.00             2.00
+50%      36.00        4919.00            5.00             3.00
+75%      43.00        8379.00            9.00             4.00
+max      60.00       19999.00           40.00             4.00
+
+Phân phối nhãn Attrition:
+  - Nghỉ việc (Yes): 237  (16.12%)
+  - Ở lại     (No) : 1233  (83.88%)
+  -> Dữ liệu MẤT CÂN BẰNG (~16% lớp thiểu số)
+  - Số bản ghi trùng lặp: 0
+
+BƯỚC 2: TRỰC QUAN HÓA DỮ LIỆU (EDA)
+  - Vẽ biểu đồ phân bố Attrition...
+    -> Lưu: attrition_distribution.png
+  - Vẽ biểu đồ phân bố các biến số...
+    -> Lưu: numeric_distribution.png
+  - Vẽ biểu đồ Attrition theo JobSatisfaction...
+    -> Lưu: satisfaction_attrition.png
+  - Vẽ ma trận tương quan...
+    -> Lưu: correlation_matrix.png
+
+BƯỚC 3: TIỀN XỬ LÝ DỮ LIỆU
+Kích thước tập Train ban đầu: X_train (1176, 5)
+Tỷ lệ nhãn ban đầu:
+Attrition
+0    986
+1    190
+Name: count, dtype: int64
+
+Sau khi Cân bằng dữ liệu thủ công (Oversampling):
+Kích thước tập Train mới: (1972, 5)
+Tỷ lệ nhãn sau cân bằng:
+Attrition
+0    986
+1    986
+Name: count, dtype: int64
+
+Các đặc trưng sử dụng: ['Age', 'MonthlyIncome', 'OverTime', 'JobSatisfaction', 'YearsAtCompany']
+
+BƯỚC 4: CẤU HÌNH CÁC MÔ HÌNH
+Dữ liệu đã được tiền xử lý thủ công: mã hóa, chuẩn hóa Z-score, oversampling.
+
+Các mô hình được cấu hình:
+  Logistic Regression   : Hồi quy logistic (tuyến tính), class_weight='balanced'
+  Random Forest         : 300 cây quyết định, class_weight='balanced'
+  SVM                   : Kernel RBF, C=1.0, gamma='scale', probability=True
+  XGBoost               : Gradient Boosting, 300 estimators, max_depth=4, lr=0.1
+  MLP (Deep Learning)   : Mạng neural 2 lớp ẩn (64,32), ReLU, Adam, early_stopping
+
+BƯỚC 4: CROSS-VALIDATION (5-FOLD) TRÊN TẬP HUẤN LUYỆN
+Tiến hành đánh giá chéo 5-fold cho từng mô hình...
+
+[Logistic Regression]
+    accuracy          : 0.7064  (+/- 0.0215)
+    precision         : 0.7032  (+/- 0.0234)
+    recall            : 0.7150  (+/- 0.0327)
+    f1                : 0.7087  (+/- 0.0230)
+    roc_auc           : 0.7551  (+/- 0.0241)
+    balanced_accuracy : 0.7064  (+/- 0.0215)
+
+[Random Forest]
+    accuracy          : 0.9396  (+/- 0.0134)
+    precision         : 0.9024  (+/- 0.0233)
+    recall            : 0.9868  (+/- 0.0135)
+    f1                : 0.9425  (+/- 0.0122)
+    roc_auc           : 0.9930  (+/- 0.0034)
+    balanced_accuracy : 0.9396  (+/- 0.0134)
+
+[SVM]
+    accuracy          : 0.6932  (+/- 0.0114)
+    precision         : 0.7167  (+/- 0.0248)
+    recall            : 0.6420  (+/- 0.0196)
+    f1                : 0.6767  (+/- 0.0072)
+    roc_auc           : 0.7869  (+/- 0.0227)
+    balanced_accuracy : 0.6932  (+/- 0.0115)
+
+[XGBoost]
+    accuracy          : 0.9021  (+/- 0.0172)
+    precision         : 0.8719  (+/- 0.0174)
+    recall            : 0.9432  (+/- 0.0283)
+    f1                : 0.9059  (+/- 0.0173)
+    roc_auc           : 0.9528  (+/- 0.0135)
+    balanced_accuracy : 0.9021  (+/- 0.0172)
+
+[MLP (Deep Learning)]
+    accuracy          : 0.7733  (+/- 0.0383)
+    precision         : 0.7691  (+/- 0.0343)
+    recall            : 0.7809  (+/- 0.0642)
+    f1                : 0.7740  (+/- 0.0441)
+    roc_auc           : 0.8485  (+/- 0.0451)
+    balanced_accuracy : 0.7733  (+/- 0.0383)
+
+
+BẢNG TỔNG HỢP KẾT QUẢ CROSS-VALIDATION (trung bình 5-fold)
+              Model  accuracy  precision  recall     f1  roc_auc  balanced_accuracy
+Logistic Regression    0.7064     0.7032  0.7150 0.7087   0.7551             0.7064
+      Random Forest    0.9396     0.9024  0.9868 0.9425   0.9930             0.9396
+                SVM    0.6932     0.7167  0.6420 0.6767   0.7869             0.6932
+            XGBoost    0.9021     0.8719  0.9432 0.9059   0.9528             0.9021
+MLP (Deep Learning)    0.7733     0.7691  0.7809 0.7740   0.8485             0.7733
+
+BƯỚC 5: ĐÁNH GIÁ TRÊN TẬP TEST (HOLDOUT 20%)
+Bảng metrics trên tập Test (lớp dương = Nghỉ việc):
+              Model  Accuracy  Precision  Recall  F1-score  ROC-AUC  Balanced Acc
+Logistic Regression    0.7177     0.3364  0.7872    0.4713   0.7778        0.7458
+      Random Forest    0.7925     0.3056  0.2340    0.2651   0.7375        0.5664
+                SVM    0.7313     0.3333  0.6809    0.4476   0.7772        0.7109
+            XGBoost    0.7721     0.3077  0.3404    0.3232   0.7076        0.5973
+MLP (Deep Learning)    0.7143     0.3093  0.6383    0.4167   0.7231        0.6835
+
+Xếp hạng theo Recall (giảm dần) - ưu tiên phát hiện nhân viên nghỉ việc:
+              Model  Recall  F1-score  ROC-AUC  Accuracy
+Logistic Regression  0.7872    0.4713   0.7778    0.7177
+                SVM  0.6809    0.4476   0.7772    0.7313
+MLP (Deep Learning)  0.6383    0.4167   0.7231    0.7143
+            XGBoost  0.3404    0.3232   0.7076    0.7721
+      Random Forest  0.2340    0.2651   0.7375    0.7925
+
+BƯỚC 6: MA TRẬN NHẦM LẪN & CLASSIFICATION REPORT (tập Test)
+
+--- Logistic Regression ---
+  Ma trận nhầm lẫn:  TN=174, FP=73, FN=10, TP=37
+               precision    recall  f1-score   support
+
+    Ở lại (0)     0.9457    0.7045    0.8074       247
+Nghỉ việc (1)     0.3364    0.7872    0.4713        47
+
+     accuracy                         0.7177       294
+    macro avg     0.6410    0.7458    0.6394       294
+ weighted avg     0.8482    0.7177    0.7537       294
+
+
+--- Random Forest ---
+  Ma trận nhầm lẫn:  TN=222, FP=25, FN=36, TP=11
+               precision    recall  f1-score   support
+
+    Ở lại (0)     0.8605    0.8988    0.8792       247
+Nghỉ việc (1)     0.3056    0.2340    0.2651        47
+
+     accuracy                         0.7925       294
+    macro avg     0.5830    0.5664    0.5721       294
+ weighted avg     0.7718    0.7925    0.7810       294
+
+
+--- SVM ---
+  Ma trận nhầm lẫn:  TN=183, FP=64, FN=15, TP=32
+               precision    recall  f1-score   support
+
+    Ở lại (0)     0.9242    0.7409    0.8225       247
+Nghỉ việc (1)     0.3333    0.6809    0.4476        47
+
+     accuracy                         0.7313       294
+    macro avg     0.6288    0.7109    0.6350       294
+ weighted avg     0.8298    0.7313    0.7625       294
+
+
+--- XGBoost ---
+  Ma trận nhầm lẫn:  TN=211, FP=36, FN=31, TP=16
+               precision    recall  f1-score   support
+
+    Ở lại (0)     0.8719    0.8543    0.8630       247
+Nghỉ việc (1)     0.3077    0.3404    0.3232        47
+
+     accuracy                         0.7721       294
+    macro avg     0.5898    0.5973    0.5931       294
+ weighted avg     0.7817    0.7721    0.7767       294
+
+
+--- MLP (Deep Learning) ---
+  Ma trận nhầm lẫn:  TN=180, FP=67, FN=17, TP=30
+               precision    recall  f1-score   support
+
+    Ở lại (0)     0.9137    0.7287    0.8108       247
+Nghỉ việc (1)     0.3093    0.6383    0.4167        47
+
+     accuracy                         0.7143       294
+    macro avg     0.6115    0.6835    0.6137       294
+ weighted avg     0.8171    0.7143    0.7478       294
+
+
+BƯỚC 7: ĐỘ QUAN TRỌNG CỦA ĐẶC TRƯNG
+Cách xác định:
+  - Random Forest / XGBoost: feature_importances_ (giảm impurity/gain).
+  - Logistic Regression     : hệ số (trên dữ liệu đã scale).
+  - SVM / MLP               : Permutation Importance (mất điểm ROC-AUC).
+
+[Random Forest] feature_importances_:
+    MonthlyIncome       : 0.3486
+    Age                 : 0.2742
+    YearsAtCompany      : 0.2044
+    JobSatisfaction     : 0.0963
+    OverTime            : 0.0764
+
+[XGBoost] feature_importances_:
+    OverTime            : 0.3432
+    YearsAtCompany      : 0.1794
+    Age                 : 0.1704
+    JobSatisfaction     : 0.1570
+    MonthlyIncome       : 0.1500
+
+[Logistic Regression] |hệ số| (trên dữ liệu chuẩn hóa):
+    OverTime            : 1.2924
+    JobSatisfaction     : 0.3323
+    Age                 : 0.3245
+    YearsAtCompany      : 0.3227
+    MonthlyIncome       : 0.2711
+
+[SVM] Permutation Importance (giảm ROC-AUC):
+    OverTime            : 0.1551
+    JobSatisfaction     : 0.0456
+    YearsAtCompany      : 0.0342
+    MonthlyIncome       : 0.0214
+    Age                 : 0.0103
+
+[MLP (Deep Learning)] Permutation Importance (giảm ROC-AUC):
+    OverTime            : 0.1198
+    YearsAtCompany      : 0.0429
+    JobSatisfaction     : 0.0361
+    MonthlyIncome       : 0.0341
+    Age                 : 0.0109
+
+Độ quan trọng đặc trưng (chuẩn hóa %, mỗi cột tổng = 100%):
+                 Random Forest  XGBoost  Logistic Regression    SVM  MLP (Deep Learning)
+Age                      27.42    17.04                12.76   3.87                 4.48
+MonthlyIncome            34.86    15.00                10.66   8.04                13.99
+OverTime                  7.64    34.32                50.82  58.17                49.14
+JobSatisfaction           9.63    15.70                13.07  17.09                14.82
+YearsAtCompany           20.44    17.94                12.69  12.84                17.57
+
+Xếp hạng đặc trưng quan trọng nhất (trung bình các mô hình):
+OverTime           40.02
+MonthlyIncome      16.51
+YearsAtCompany     16.30
+JobSatisfaction    14.06
+Age                13.11
+
+BƯỚC 8: TỔNG KẾT VÀ LỰA CHỌN MÔ HÌNH
+Mô hình tốt nhất trên tập Test (ưu tiên Recall): 
+  -> Logistic Regression
+     Recall=0.7872, F1=0.4713, ROC-AUC=0.7778, Accuracy=0.7177
+
+Bảng so sánh cuối cùng (sắp xếp theo Recall):
+              Model  Accuracy  Precision  Recall  F1-score  ROC-AUC  Balanced Acc
+Logistic Regression    0.7177     0.3364  0.7872    0.4713   0.7778        0.7458
+                SVM    0.7313     0.3333  0.6809    0.4476   0.7772        0.7109
+MLP (Deep Learning)    0.7143     0.3093  0.6383    0.4167   0.7231        0.6835
+            XGBoost    0.7721     0.3077  0.3404    0.3232   0.7076        0.5973
+      Random Forest    0.7925     0.3056  0.2340    0.2651   0.7375        0.5664
+
+HOÀN TẤT PIPELINE
+Các kết quả đã được lưu tại thư mục: c:\Users\letua\Desktop\btl ai\ket_qua
+  - BAO_CAO_KET_QUA.txt            : toàn bộ nội dung kết quả
+  - bang_cv.csv                    : bảng metrics cross-validation
+  - bang_test_metrics.csv          : bảng metrics tập test
+  - feature_importance.csv         : độ quan trọng đặc trưng
+  - confusion_*.png                : ma trận nhầm lẫn từng mô hình
+  - feature_importance_overall.png : biểu đồ độ quan trọng
+  - attrition_distribution.png     : phân bố nhãn Attrition
+  - numeric_distribution.png       : phân bố các biến số
+  - satisfaction_attrition.png     : nghỉ việc theo mức độ hài lòng
+  - correlation_matrix.png         : ma trận tương quan
